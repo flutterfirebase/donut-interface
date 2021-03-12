@@ -1,4 +1,4 @@
-# nutbox-interface-v0.2
+# nutbox-donut-web-ui
 
 ## Project setup
 ```
