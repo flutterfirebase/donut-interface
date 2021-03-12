@@ -14,15 +14,8 @@
 </template>
 
 <script>
-import {
-  STEEM_API_URLS,
-  STEEM_CONF_KEY,
-  LOCALE_KEY,
-  STEEM_MINE_ACCOUNT
-} from "./config";
 import TipMessage from "./components/ToolsComponents/TipMessage";
 import Donut from "./components/Donut"
-import { mapState, mapGetters } from "vuex";
 
 export default {
   data() {
@@ -30,23 +23,13 @@ export default {
       tipMessage: "",
       tipTitle: "",
       showMessage: false,
-      steemUrls: STEEM_API_URLS,
-      steemNodeKey: STEEM_CONF_KEY,
-      currentSteemNode: window.localStorage.getItem(STEEM_CONF_KEY),
-      nutboxMineAccount: STEEM_MINE_ACCOUNT,
-      lang: "en",
     };
-  },
-  computed: {
-    ...mapState(["tronAddress"]),
-    ...mapGetters(["tronAddrFromat", "pnutBalance"]),
   },
   components: {
     TipMessage,
     Donut
   },
   async mounted() {
-    this.lang = localStorage.getItem(LOCALE_KEY);
   },
 };
 </script>
