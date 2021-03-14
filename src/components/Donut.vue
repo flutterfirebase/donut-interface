@@ -149,7 +149,9 @@ import {
 } from "../config";
 import { steemWrap } from "../utils/chain/steem";
 import { formatBalance } from "../utils/helper";
-import { connect, loadAccounts } from "../utils/chain/polkadot"
+import { connect, loadAccounts } from "../utils/chain/polkadot";
+import BN from 'bn'
+import sleep from '../utils/helper'
 
 export default {
   name: "Donut",
@@ -169,10 +171,17 @@ export default {
       showMessage: false,
       showSteemLogin: false,
       fromSteemToDnut: true,
+      nonce:0
     };
   },
   computed: {
-    ...mapState(["steemBalance", "steemAccount", "donutAddress","dnutBalance"]),
+    ...mapState([
+      "steemBalance",
+      "steemAccount",
+      "donutAccount",
+      "dnutBalance",
+      "api",
+    ]),
     fromTokenBalance() {
       if (this.fromSteemToDnut) {
         return formatBalance(this.steemBalance) + " STEEM";
@@ -201,7 +210,7 @@ export default {
 
   methods: {
     ...mapActions(["getSteem"]),
-    ...mapMutations(["saveSteemBalance"]),
+    ...mapMutations(["saveSteemBalance", "saveDnutBalance"]),
 
     checkTransValue() {
       this.isLoading = false;
@@ -257,15 +266,16 @@ export default {
           this.steemAccount,
           STEEM_DONUT_ACCOUNT,
           amount,
-          this.donutAddress + " +" + amount + " DNUT",
+          this.donutAccount.address + " +" + amount + " DNUT",
           "STEEM",
-          this.donutAddress,
+          this.donutAccount.address,
           this.transFee
         );
         if (res.success === true) {
           const dnutBalance = parseFloat(this.dnutBalance);
           const steemBalance = parseFloat(this.steemBalance);
           this.saveSteemBalance(steemBalance - parseFloat(amount));
+          this.saveDnutBalance(dnutBalance + parseFloat(amount))
         } else {
           this.tipTitle = this.$t("error.error");
           this.tipMessage = res.message;
@@ -281,14 +291,59 @@ export default {
       }
     },
 
-    async dnutToSteem() {},
+    async dnutToSteem() {
+      if (this.api && this.saveDonutAccount) {
+        // Retrieve the chain & node information information via rpc calls
+        const [nodeName, nodeVersion] = await Promise.all([
+          this.api.rpc.system.name(),
+          this.api.rpc.system.version(),
+        ]);
+
+        const bridge_sig = '0x' + Buffer.from('dummy signature').toString('hex')
+        console.log(`We have connected to ${nodeName}-v${nodeVersion}`);
+        if (this.nonce === 0) {
+          this.nonce = (
+            await this.api.query.system.account(this.donutAccount.address)
+          ).nonce.toNumber();
+        }
+        const unsub = await this.api.tx.donutCore
+          .burnDonut(
+            this.donutAccount.address,
+            steem_account,
+            new BN(this.transValue),
+            bridge_sig
+          )
+          .signAndSend(sudo_account, { nonce: nonce, era: 0 }, (result) => {
+            console.log(`Current status is ${result.status}`);
+            if (result.status.isInBlock) {
+              console.log(
+                `Transaction included at blockHash ${result.status.asInBlock}`
+              );
+            } else if (result.status.isFinalized) {
+              console.log(
+                `Transaction finalized at blockHash ${result.status.asFinalized}`
+              );
+              unsub();
+              return resolve(result.status.asFinalized);
+            }
+          })
+          .catch((err) => reject(err));
+      } else {
+        console.log("no api");
+      }
+    },
   },
-  mounted() {
+  async mounted() {
     if (this.steemAccount && this.steemAccount.length > 0) {
       this.getSteem();
     }
-    connect(this.$store.state, this.$store.commit)
-    loadAccounts(this.$store.commit)
+    connect(this.$store.state, this.$store.commit);
+    loadAccounts(this.$store.dispatch);
+    let that = this
+    setTimeout(async () => {
+    const { nonce, data: balance } = await that.api.query.system.account(that.donutAccount.address)
+    console.log('bbb', balance);
+    }, 6000);
   },
 };
 </script>
