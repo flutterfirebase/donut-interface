@@ -25,10 +25,10 @@ export const connect = (state, commit) => {
     _api.on('error', err => commit('saveApiState','CONNECT_ERROR'));
   };
 
-export const loadAccounts = (state, commit) => {
+export const loadAccounts = (commit) => {
     const asyncLoadAccounts = async () => {
       try {
-        await web3Enable(config.APP_NAME);
+        await web3Enable('Donut');
         let allAccounts = await web3Accounts();
         allAccounts = allAccounts.map(({ address, meta }) =>
           ({ address, meta: { ...meta, name: `${meta.name} (${meta.source})` } }));

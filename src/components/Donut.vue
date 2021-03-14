@@ -287,6 +287,8 @@ export default {
     if (this.steemAccount && this.steemAccount.length > 0) {
       this.getSteem();
     }
+    connect(this.$store.state, this.$store.commit)
+    loadAccounts(this.$store.commit)
   },
 };
 </script>
