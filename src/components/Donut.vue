@@ -139,218 +139,210 @@
 </template>
 
 <script>
-import TipMessage from "./ToolsComponents/TipMessage";
-import Login from "./Login";
-import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
+import TipMessage from './ToolsComponents/TipMessage'
+import Login from './Login'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import {
   DNUT_TRANSFER_FEE,
   TRANSFER_FEE_RATIO,
   STEEM_DONUT_ACCOUNT,
-  DONUT_PRECISION,
-} from "../config";
-import { steemWrap } from "../utils/chain/steem";
-import { formatBalance } from "../utils/helper";
-import { connect, loadAccounts } from "../utils/chain/polkadot";
-import BN from 'bn'
-import sleep from '../utils/helper'
+  DONUT_PRECISION
+} from '../config'
+import { steemWrap } from '../utils/chain/steem'
+import sleep, { formatBalance } from '../utils/helper'
+import { connect, loadAccounts } from '../utils/chain/polkadot'
+import BN from 'bn.js'
 
 export default {
-  name: "Donut",
+  name: 'Donut',
   components: {
     TipMessage,
-    Login,
+    Login
   },
-  data() {
+  data () {
     return {
       canTransFlag: false,
       isLoading: false,
-      transValue: "",
-      tipMessage: "",
-      tipTitle: "",
+      transValue: '',
+      tipMessage: '',
+      tipTitle: '',
       transferFee: DNUT_TRANSFER_FEE,
       transferRatio: TRANSFER_FEE_RATIO,
       showMessage: false,
       showSteemLogin: false,
       fromSteemToDnut: true,
-      nonce:0
-    };
+      nonce: 0
+    }
   },
   computed: {
     ...mapState([
-      "steemBalance",
-      "steemAccount",
-      "donutAccount",
-      "dnutBalance",
-      "api",
+      'steemBalance',
+      'steemAccount',
+      'donutAccount',
+      'dnutBalance',
+      'api'
     ]),
-    fromTokenBalance() {
+    fromTokenBalance () {
       if (this.fromSteemToDnut) {
-        return formatBalance(this.steemBalance) + " STEEM";
+        return formatBalance(this.steemBalance) + ' STEEM'
       } else {
-        return formatBalance(this.dnutBalance) + " DNUT";
+        return formatBalance(this.dnutBalance) + ' DNUT'
       }
     },
-    toTokenBalance() {
+    toTokenBalance () {
       if (!this.fromSteemToDnut) {
-        return formatBalance(this.steemBalance) + " STEEM";
+        return formatBalance(this.steemBalance) + ' STEEM'
       } else {
-        return formatBalance(this.dnutBalance) + " DNUT";
+        return formatBalance(this.dnutBalance) + ' DNUT'
       }
     },
-    isLogin() {
-      return this.steemAccount && this.steemAccount.length > 0;
+    isLogin () {
+      return this.steemAccount && this.steemAccount.length > 0
     },
-    transFee() {
+    transFee () {
       if (this.fromSteemToDnut) {
-        const f = parseFloat(this.transValue) * TRANSFER_FEE_RATIO;
-        return f > DNUT_TRANSFER_FEE ? f : DNUT_TRANSFER_FEE;
+        const f = parseFloat(this.transValue) * TRANSFER_FEE_RATIO
+        return f > DNUT_TRANSFER_FEE ? f : DNUT_TRANSFER_FEE
       }
-      return 0;
-    },
+      return 0
+    }
   },
 
   methods: {
-    ...mapActions(["getSteem"]),
-    ...mapMutations(["saveSteemBalance", "saveDnutBalance"]),
+    ...mapActions(['getSteem']),
+    ...mapMutations(['saveSteemBalance', 'saveDnutBalance']),
 
-    checkTransValue() {
-      this.isLoading = false;
-      const reg = /^\d+(\.\d+)?$/;
-      const res = reg.test(this.transValue);
-      let res1 = false;
+    checkTransValue () {
+      this.isLoading = false
+      const reg = /^\d+(\.\d+)?$/
+      const res = reg.test(this.transValue)
+      let res1 = false
       if (parseFloat(this.transValue) > 0) {
-        res1 = true;
+        res1 = true
       }
       if (this.fromSteemToDnut) {
         const res2 =
           parseFloat(this.transValue) <=
-          parseFloat(parseFloat(this.steemBalance) - this.transFee).toFixed(3);
+          parseFloat(parseFloat(this.steemBalance) - this.transFee).toFixed(3)
 
-        this.canTransFlag = res1 && res && res2;
+        this.canTransFlag = res1 && res && res2
       } else {
         const res3 =
-          parseFloat(this.transValue) <= parseFloat(this.dnutBalance);
-        this.canTransFlag = res1 && res && res3;
+          parseFloat(this.transValue) <= parseFloat(this.dnutBalance)
+        this.canTransFlag = res1 && res && res3
       }
     },
 
-    fillMaxTrans() {
+    fillMaxTrans () {
       if (this.fromSteemToDnut) {
-        this.transValue = this.steemBalance;
-        this.transValue = parseFloat(this.steemBalance - this.transFee);
+        this.transValue = this.steemBalance
+        this.transValue = parseFloat(this.steemBalance - this.transFee)
       } else {
-        this.transValue = parseFloat(this.dnutBalance);
+        this.transValue = parseFloat(this.dnutBalance)
       }
-      this.checkTransValue();
+      this.checkTransValue()
     },
 
-    trans() {
-      this.isLoading = true;
-      this.canTransFlag = false;
+    trans () {
+      this.isLoading = true
+      this.canTransFlag = false
       if (this.fromSteemToDnut) {
-        this.steemToDnut();
+        this.steemToDnut()
       } else {
-        this.dnutToSteem();
+        this.dnutToSteem()
       }
     },
 
-    changeTransOrder() {
-      this.fromSteemToDnut = !this.fromSteemToDnut;
-      this.transValue = "";
-      this.checkTransValue();
+    changeTransOrder () {
+      this.fromSteemToDnut = !this.fromSteemToDnut
+      this.transValue = ''
+      this.checkTransValue()
     },
 
-    async steemToDnut() {
+    async steemToDnut () {
       try {
-        const amount = parseFloat(this.transValue).toFixed(3);
+        const amount = parseFloat(this.transValue).toFixed(3)
         const res = await steemWrap(
           this.steemAccount,
           STEEM_DONUT_ACCOUNT,
           amount,
-          this.donutAccount.address + " +" + amount + " DNUT",
-          "STEEM",
+          this.donutAccount.address + ' +' + amount + ' DNUT',
+          'STEEM',
           this.donutAccount.address,
           this.transFee
-        );
+        )
         if (res.success === true) {
-          const dnutBalance = parseFloat(this.dnutBalance);
-          const steemBalance = parseFloat(this.steemBalance);
-          this.saveSteemBalance(steemBalance - parseFloat(amount));
+          const dnutBalance = parseFloat(this.dnutBalance)
+          const steemBalance = parseFloat(this.steemBalance)
+          this.saveSteemBalance(steemBalance - parseFloat(amount))
           this.saveDnutBalance(dnutBalance + parseFloat(amount))
         } else {
-          this.tipTitle = this.$t("error.error");
-          this.tipMessage = res.message;
-          this.showMessage = true;
+          this.tipTitle = this.$t('error.error')
+          this.tipMessage = res.message
+          this.showMessage = true
         }
       } catch (e) {
-        this.tipTitle = this.$t("error.error");
-        this.tipMessage = e.message;
-        this.showMessage = true;
+        this.tipTitle = this.$t('error.error')
+        this.tipMessage = e.message
+        this.showMessage = true
       } finally {
-        this.transValue = "";
-        this.checkTransValue();
+        this.transValue = ''
+        this.checkTransValue()
       }
     },
 
-    async dnutToSteem() {
+    async dnutToSteem () {
       if (this.api) {
         // Retrieve the chain & node information information via rpc calls
         const [nodeName, nodeVersion] = await Promise.all([
           this.api.rpc.system.name(),
-          this.api.rpc.system.version(),
-        ]);
+          this.api.rpc.system.version()
+        ])
 
         const bridge_sig = '0x' + Buffer.from('dummy signature').toString('hex')
-        console.log(`We have connected to ${nodeName}-v${nodeVersion}`);
+        console.log(`We have connected to ${nodeName}-v${nodeVersion}`)
         if (this.nonce === 0) {
           this.nonce = (
             await this.api.query.system.account(this.donutAccount.address)
-          ).nonce.toNumber();
+          ).nonce.toNumber()
         }
 
-        console.log("tx", this.api.tx);
-        console.log("steem account", this.steemAccount, this.transValue);
-        window.tx = this.api.tx;
-
-        const unsub = await this.api.tx.donutCore
+        const burn = this.api.tx.donutCore
           .burnDonut(
-            // this.donutAccount.address,
             this.steemAccount,
-            new BN(this.transValue)
-            // bridge_sig
+            new BN(this.transValue * DONUT_PRECISION)
           )
-          .signAndSend(this.donutAccount, { nonce: this.nonce, era: 0 }, (result) => {
-            console.log(`Current status is ${result.status}`);
-            if (result.status.isInBlock) {
-              console.log(
+        const unsub = await burn.signAndSend(this.donutAccount, { nonce: this.nonce, era: 0 }, (result) => {
+          console.log(`Current status is ${result.status}`)
+          if (result.status.isInBlock) {
+            console.log(
                 `Transaction included at blockHash ${result.status.asInBlock}`
-              );
-            } else if (result.status.isFinalized) {
-              console.log(
+            )
+          } else if (result.status.isFinalized) {
+            console.log(
                 `Transaction finalized at blockHash ${result.status.asFinalized}`
-              );
-              unsub();
-              return result.status.asFinalized;
-            }
-          })
-          .catch((err) => console.error(err));
+            )
+            unsub()
+            return result.status.asFinalized
+          }
+        })
+          .catch((err) => console.error(err))
       } else {
-        console.log("no api");
+        console.log('no api')
       }
-    },
+    }
   },
-  async mounted() {
+  async mounted () {
     if (this.steemAccount && this.steemAccount.length > 0) {
-      this.getSteem();
+      this.getSteem()
     }
     connect(this.$store.state, this.$store.commit, async () => {
-      await loadAccounts(this.$store.dispatch);
+      await loadAccounts(this.$store.dispatch)
       const { nonce, data: balance } = await this.api.query.system.account(this.donutAccount.address)
-      this.saveDnutBalance(balance.free / DONUT_PRECISION);
-    });
-
-  },
-};
+      this.saveDnutBalance(balance.free / DONUT_PRECISION)
+    })
+  }
+}
 </script>
 
 <style lang="less" scoped>
