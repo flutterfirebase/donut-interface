@@ -53,9 +53,12 @@ export default new Vuex.Store({
 
     // polkadot
     saveApiState(state, param){
-      console.log('apiState:',param.apiState);
-      state.apiState = param.apiState
-      state.api = param._api
+      console.log('apiState:',param.apiState)
+      const { apiState, _api } = param
+      state.apiState = apiState
+      if (_api) {
+        state.api = _api
+      }
     },
     saveDonutAccount(state, donutAccount) {
       console.log('save acc',donutAccount);

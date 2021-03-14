@@ -146,6 +146,7 @@ import {
   DNUT_TRANSFER_FEE,
   TRANSFER_FEE_RATIO,
   STEEM_DONUT_ACCOUNT,
+  DONUT_PRECISION,
 } from "../config";
 import { steemWrap } from "../utils/chain/steem";
 import { formatBalance } from "../utils/helper";
@@ -337,13 +338,12 @@ export default {
     if (this.steemAccount && this.steemAccount.length > 0) {
       this.getSteem();
     }
-    connect(this.$store.state, this.$store.commit);
-    loadAccounts(this.$store.dispatch);
-    let that = this
-    setTimeout(async () => {
-    const { nonce, data: balance } = await that.api.query.system.account(that.donutAccount.address)
-    console.log('bbb', balance);
-    }, 6000);
+    connect(this.$store.state, this.$store.commit, async () => {
+      await loadAccounts(this.$store.dispatch);
+      const { nonce, data: balance } = await this.api.query.system.account(this.donutAccount.address)
+      this.saveDnutBalance(balance.free / DONUT_PRECISION);
+    });
+
   },
 };
 </script>
