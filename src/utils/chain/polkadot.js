@@ -32,8 +32,12 @@ export const loadAccounts = (commit) => {
         let allAccounts = await web3Accounts();
         allAccounts = allAccounts.map(({ address, meta }) =>
           ({ address, meta: { ...meta, name: `${meta.name} (${meta.source})` } }));
-        keyring.loadAll({ isDevelopment: config.DEVELOPMENT_KEYRING }, allAccounts);
+        keyring.loadAll({ isDevelopment: true}, allAccounts);
         console.log('keyring:', keyring);
+        keyring.getAddresses().forEach(k => {
+            console.log('keyL:', k);
+        })
+
       } catch (e) {
         console.error(e);
       }
