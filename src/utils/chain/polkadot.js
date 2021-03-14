@@ -45,6 +45,9 @@ export const loadAccounts = async (dispatch) => {
     keyring.loadAll({ isDevelopment: true }, allAccounts);
     console.log('keyring:', keyring);
     console.log('accs:', allAccounts);
+    
+    // TODO: let user choose which injected user they use rather than default accounts[0]
+    // Give user a drop-down list to choose from the injected accounts
     dispatch('saveDonutAccount', allAccounts[0])
   } catch (e) {
     console.error(e);
