@@ -293,7 +293,7 @@ export default {
     },
 
     async dnutToSteem() {
-      if (this.api && this.saveDonutAccount) {
+      if (this.api) {
         // Retrieve the chain & node information information via rpc calls
         const [nodeName, nodeVersion] = await Promise.all([
           this.api.rpc.system.name(),
@@ -307,14 +307,19 @@ export default {
             await this.api.query.system.account(this.donutAccount.address)
           ).nonce.toNumber();
         }
+
+        console.log("tx", this.api.tx);
+        console.log("steem account", this.steemAccount, this.transValue);
+        window.tx = this.api.tx;
+
         const unsub = await this.api.tx.donutCore
           .burnDonut(
-            this.donutAccount.address,
-            steem_account,
-            new BN(this.transValue),
-            bridge_sig
+            // this.donutAccount.address,
+            this.steemAccount,
+            new BN(this.transValue)
+            // bridge_sig
           )
-          .signAndSend(sudo_account, { nonce: nonce, era: 0 }, (result) => {
+          .signAndSend(this.donutAccount, { nonce: this.nonce, era: 0 }, (result) => {
             console.log(`Current status is ${result.status}`);
             if (result.status.isInBlock) {
               console.log(
@@ -325,10 +330,10 @@ export default {
                 `Transaction finalized at blockHash ${result.status.asFinalized}`
               );
               unsub();
-              return resolve(result.status.asFinalized);
+              return result.status.asFinalized;
             }
           })
-          .catch((err) => reject(err));
+          .catch((err) => console.error(err));
       } else {
         console.log("no api");
       }
