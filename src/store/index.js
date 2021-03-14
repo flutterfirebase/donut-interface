@@ -19,6 +19,11 @@ export default new Vuex.Store({
     vestsBalance: 0,
     sbdBalance: 0,
     vestsToSteem: 0,
+
+    // polkadot
+    apiState: null,
+    donutAddress: Cookie.get('donutAddress'),
+    dnutBalance: 0,
   },
   mutations: {
     // steem
@@ -42,6 +47,18 @@ export default new Vuex.Store({
       state.steemAccount = null
       Cookie.remove('steemAccount')
     },
+
+    // polkadot
+    saveApiState(state, apiState){
+      state.apiState = apiState
+    },
+    saveDonutAddress(state, donutAddress) {
+      state.donutAddress = donutAddress
+      Cookie.set('donutAddress', donutAddress, '30d')
+    },
+    saveDnutBalance(state, dnutBalance){
+      state.dnutBalance = dnutBalance
+    }
   },
   getters: {
     // steem
