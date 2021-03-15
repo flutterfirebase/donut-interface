@@ -10,6 +10,7 @@ import {
 } from '../utils/chain/steem'
 
 import { DONUT_PRECISION } from '../utils/chain/polkadot'
+import { web3FromSource } from '@polkadot/extension-dapp';
 
 
 Vue.use(Vuex)

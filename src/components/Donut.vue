@@ -153,7 +153,7 @@ import { steemWrap } from '../utils/chain/steem'
 import { formatBalance } from '../utils/helper'
 import { connect, loadAccounts } from '../utils/chain/polkadot'
 import BN from 'bn.js'
-import { web3FromSource } from '@polkadot/extension-dapp';
+// import { web3FromSource } from '@polkadot/extension-dapp';
 import AccountSelector from './AccountSelector'
 
 export default {
@@ -321,8 +321,8 @@ export default {
           )
 
         // TODO: let user choose which injected user they use rather than default accounts[0]
-        const injected = await web3FromSource(this.donutAccount.meta.source)
-        this.api.setSigner(injected.signer)
+        // const injected = await web3FromSource(this.donutAccount.meta.source)
+        // this.api.setSigner(injected.signer)
 
         const unsub = await burn.signAndSend(this.donutAccount.address, { nonce: this.nonce, era: 0 }, (result) => {
           console.log(`Current status is ${result.status}`)
