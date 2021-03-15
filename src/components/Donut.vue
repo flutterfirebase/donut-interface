@@ -291,12 +291,14 @@ export default {
         this.tipMessage = e.message
         this.showMessage = true
       } finally {
+        this.isLoading = false
         this.transValue = ''
         this.checkTransValue()
       }
     },
 
     async dnutToSteem () {
+      try{
       if (this.api) {
         // Retrieve the chain & node information information via rpc calls
         const [nodeName, nodeVersion] = await Promise.all([
@@ -339,6 +341,13 @@ export default {
           .catch((err) => console.error(err))
       } else {
         console.log('no api')
+      }
+      }catch (e){
+        console.error('transfer fail:', e);
+      }finally{
+        this.isLoading = false
+        this.transValue = ''
+        this.checkTransValue()
       }
     }
   },
