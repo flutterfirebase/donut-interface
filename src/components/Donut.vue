@@ -287,55 +287,65 @@ export default {
         this.tipMessage = e.message
         this.showMessage = true
       } finally {
+        this.isLoading = false
         this.transValue = ''
         this.checkTransValue()
       }
     },
 
     async dnutToSteem () {
-      if (this.api) {
-        // Retrieve the chain & node information information via rpc calls
-        const [nodeName, nodeVersion] = await Promise.all([
-          this.api.rpc.system.name(),
-          this.api.rpc.system.version()
-        ])
+      try{
+        if (this.api) {
+          // Retrieve the chain & node information information via rpc calls
+          const [nodeName, nodeVersion] = await Promise.all([
+            this.api.rpc.system.name(),
+            this.api.rpc.system.version()
+          ])
 
-        const bridge_sig = '0x' + Buffer.from('dummy signature').toString('hex')
-        console.log(`We have connected to ${nodeName}-v${nodeVersion}`)
-        if (this.nonce === 0) {
-          this.nonce = (
-            await this.api.query.system.account(this.donutAccount.address)
-          ).nonce.toNumber()
-        }
-
-        const burn = this.api.tx.donutCore
-          .burnDonut(
-            this.steemAccount,
-            new BN(this.transValue * DONUT_PRECISION)
-          )
-
-        // TODO: let user choose which injected user they use rather than default accounts[0]
-        const injected = await web3FromSource(this.donutAccount.meta.source)
-        this.api.setSigner(injected.signer)
-
-        const unsub = await burn.signAndSend(this.donutAccount.address, { nonce: this.nonce, era: 0 }, (result) => {
-          console.log(`Current status is ${result.status}`)
-          if (result.status.isInBlock) {
-            console.log(
-                `Transaction included at blockHash ${result.status.asInBlock}`
-            )
-          } else if (result.status.isFinalized) {
-            console.log(
-                `Transaction finalized at blockHash ${result.status.asFinalized}`
-            )
-            unsub()
-            return result.status.asFinalized
+          const bridge_sig = '0x' + Buffer.from('dummy signature').toString('hex')
+          console.log(`We have connected to ${nodeName}-v${nodeVersion}`)
+          if (this.nonce === 0) {
+            this.nonce = (
+              await this.api.query.system.account(this.donutAccount.address)
+            ).nonce.toNumber()
           }
-        })
-          .catch((err) => console.error(err))
-      } else {
-        console.log('no api')
+
+          const burn = this.api.tx.donutCore
+            .burnDonut(
+              this.steemAccount,
+              new BN(this.transValue * DONUT_PRECISION)
+            )
+
+          // TODO: let user choose which injected user they use rather than default accounts[0]
+          const injected = await web3FromSource(this.donutAccount.meta.source)
+          this.api.setSigner(injected.signer)
+
+          const unsub = await burn.signAndSend(this.donutAccount.address, { nonce: this.nonce, era: 0 }, (result) => {
+            console.log(`Current status is ${result.status}`)
+            if (result.status.isInBlock) {
+              console.log(
+                  `Transaction included at blockHash ${result.status.asInBlock}`
+              )
+            } else if (result.status.isFinalized) {
+              console.log(
+                  `Transaction finalized at blockHash ${result.status.asFinalized}`
+              )
+              unsub()
+              return result.status.asFinalized
+            }
+          })
+            .catch((err) => console.error(err))
+        } else {
+          console.log('no api')
+        }
+      }catch(e){
+        console.error('transfer err', e);
+      }finally{
+        this.isLoading = false
+        this.transValue = ''
+        this.checkTransValue()
       }
+    
     }
   },
   async mounted () {
