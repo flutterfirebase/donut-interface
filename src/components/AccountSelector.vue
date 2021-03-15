@@ -4,7 +4,7 @@
       <h3>
           Please select a account for operation.
       </h3>
-    <card v-for="acc in polkadotAccounts" :key="acc">
+    <card @click="selectAccount(acc)" v-for="acc in polkadotAccounts" :key="acc">
         <p>
             acc.address
         </p>
@@ -14,7 +14,6 @@
 </template>
 
 <script>
-import { web3FromSource } from "@polkadot/extension-dapp";
 import Card from './ToolsComponents/Card'
 import { mapState, mapMutations, mapActions } from 'vuex'
 export default {
@@ -23,11 +22,13 @@ export default {
       Card
   },
   computed: {
-      ...mapState(['donutAccount','polkadotAccounts']),
+      ...mapState(['polkadotAccounts']),
   },
   methods: {
-      ...mapMutations(['saveDonutAccount']),
-    ...mapActions(['saveDonutAccount'])
+    ...mapActions(['saveDonutAccount']),
+    selectAccount(acc){
+        this.saveDonutAccount(acc)
+    }
   },
 };
 </script>
@@ -41,5 +42,8 @@ export default {
   box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.05);
   border-radius: 28px;
   padding: 24px;
+}
+.card{
+  margin: 8px 14px;
 }
 </style>

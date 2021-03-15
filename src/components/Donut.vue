@@ -129,7 +129,7 @@
     </div>
 
     <Login v-if="showSteemLogin" @hideMask="showSteemLogin = false" />
-    <AccountSelector v-if="polkadotAccounts && polkadotAccounts.length > 0" />
+    <AccountSelector v-if="!donutAccount && polkadotAccounts && polkadotAccounts.length > 0" />
     <TipMessage
       :showMessage="tipMessage"
       :title="tipTitle"
