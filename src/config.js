@@ -27,5 +27,5 @@ export const STEEM_TSP_ACCOUNT = process.env.STEEM_TSP_ACCOUNT || 'nutbox-tsp'
 export const STEEM_DONUT_ACCOUNT = process.env.STEEM_DONUT_ACCOUNT || 'donut.nutbox'
 
 // polkadot
-export const POLKADOT_WEB_SOCKET = "wss://donut.nutbox.io"
+export const POLKADOT_WEB_SOCKET = "wss://rpc.donut.nutbox.io"
 export const DONUT_PRECISION = 10 ** 12;
