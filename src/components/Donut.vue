@@ -311,9 +311,9 @@ export default {
         const burn = this.api.tx.donutCore
           .burnDonut(
             this.steemAccount,
-            new BN(this.transValue).mul(new BN(DONUT_PRECISION))
+            new BN(this.transValue * DONUT_PRECISION)
           )
-        
+
         // TODO: let user choose which injected user they use rather than default accounts[0]
         const injected = await web3FromSource(this.donutAccount.meta.source)
         this.api.setSigner(injected.signer)
