@@ -11,7 +11,8 @@ import {
 import keyring from '@polkadot/ui-keyring';
 
 import {
-  POLKADOT_WEB_SOCKET
+  POLKADOT_WEB_SOCKET,
+  DONUT_PRECISION
 } from '../../config'
 
 export const connect = (state, commit, callback) => {
@@ -90,3 +91,8 @@ export const loadAccounts = async (store) => {
     console.error(e);
   }
 };
+
+export const getAccountBalance = async (acc, api) => {
+  const { nonce, data: balance } = await api.query.system.account(acc.address)
+  return balance.free / DONUT_PRECISION
+}
