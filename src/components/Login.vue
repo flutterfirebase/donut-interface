@@ -4,19 +4,20 @@
       <div class="login">
         <p>{{ this.$t("message.userlogin") }}</p>
         <div class="account-box">
-          <span class="keychain" @click="getKeychain"/>
+          <span class="keychain" @click="getKeychain" />
           <b-input
             class="mb-2 mr-sm-2 mb-sm-0 input"
             :placeholder="$t('message.steemAccoutPlaceHolder')"
             v-model="steemAccount"
           ></b-input>
         </div>
-        <b-button variant="primary" class="login-btn" @click="login" :disabled="isLoging">
-          <b-spinner
-            small
-            type="grow"
-            v-show="isLoging"
-          ></b-spinner>
+        <b-button
+          variant="primary"
+          class="login-btn"
+          @click="login"
+          :disabled="isLoging"
+        >
+          <b-spinner small type="grow" v-show="isLoging"></b-spinner>
           {{ this.loginBtnText }}
         </b-button>
       </div>
@@ -52,10 +53,13 @@ export default {
   },
   methods: {
     getKeychain() {
-      window.open('https://chrome.google.com/webstore/detail/steem-keychain/lkcjlnjfpbikmcmbachjpdbijejflpcm','_blank')
+      window.open(
+        "https://chrome.google.com/webstore/detail/steem-keychain/lkcjlnjfpbikmcmbachjpdbijejflpcm",
+        "_blank"
+      );
     },
     login() {
-      if (this.steemAccount.length === 0){
+      if (this.steemAccount.length === 0) {
         return;
       }
       const message = `nutbox_login-${Math.floor(
@@ -116,36 +120,37 @@ export default {
   box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.05);
   border-radius: 28px;
   padding: 24px;
-  p{
-  font-size: 20px;
+  p {
+    font-size: 20px;
   }
 }
 .account-box {
   display: flex;
   margin-top: 40px;
-.keychain{
-  width: 180px;
-  height: 48px;
-  background-color: var(--background);
-  margin-right: 2px;
-  border-radius:16px 0 0 16px;
-  background-image: url('../static/images/keychain.png');
-  background-repeat: no-repeat;
-  background-position: center;
+  .keychain {
+    width: 180px;
+    height: 48px;
+    background-color: var(--background);
+    margin-right: 2px;
+    border-radius: 16px 0 0 16px;
+    background-image: url("../static/images/keychain.png");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  .keychain:hover {
+    background-color: var(--dividers);
+    cursor: pointer;
+  }
+  .input {
+    height: 48px;
+    flex: 1;
+    background: var(--background);
+    border-radius: 0 16px 16px 0;
+    border: none;
+  }
 }
-.keychain:hover {
-  background-color:var(--dividers);
-  cursor: pointer;
-}
-.input {
-  height: 48px;
-  flex: 1;
-  background: var(--background);
-  border-radius: 0 16px 16px 0;
-  border: none;
-}
-}
-.login-btn{
-  width: 100%;margin-top: 24px;
+.login-btn {
+  width: 100%;
+  margin-top: 24px;
 }
 </style>

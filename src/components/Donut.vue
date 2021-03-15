@@ -129,6 +129,7 @@
     </div>
 
     <Login v-if="showSteemLogin" @hideMask="showSteemLogin = false" />
+    <AccountSelector v-if="polkadotAccounts && polkadotAccounts.length > 0" />
     <TipMessage
       :showMessage="tipMessage"
       :title="tipTitle"
@@ -149,16 +150,18 @@ import {
   DONUT_PRECISION
 } from '../config'
 import { steemWrap } from '../utils/chain/steem'
-import sleep, { formatBalance } from '../utils/helper'
+import { formatBalance } from '../utils/helper'
 import { connect, loadAccounts } from '../utils/chain/polkadot'
 import BN from 'bn.js'
 import { web3FromSource } from '@polkadot/extension-dapp';
+import AccountSelector from './AccountSelector'
 
 export default {
   name: 'Donut',
   components: {
     TipMessage,
-    Login
+    Login,
+    AccountSelector
   },
   data () {
     return {
@@ -180,6 +183,7 @@ export default {
       'steemBalance',
       'steemAccount',
       'donutAccount',
+      'polkadotAccounts',
       'dnutBalance',
       'api'
     ]),
@@ -343,9 +347,7 @@ export default {
       this.getSteem()
     }
     connect(this.$store.state, this.$store.commit, async () => {
-      await loadAccounts(this.$store.dispatch)
-      const { nonce, data: balance } = await this.api.query.system.account(this.donutAccount.address)
-      this.saveDnutBalance(balance.free / DONUT_PRECISION)
+      await loadAccounts(this.$store)
     })
   }
 }

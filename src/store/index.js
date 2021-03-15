@@ -9,7 +9,8 @@ import {
   getVestingShares
 } from '../utils/chain/steem'
 
-import { getApi } from '../utils/chain/polkadot'
+import { DONUT_PRECISION } from '../utils/chain/polkadot'
+
 
 Vue.use(Vuex)
 
@@ -24,6 +25,7 @@ export default new Vuex.Store({
 
     // polkadot
     apiState: null,
+    polkadotAccounts:[],
     donutAccount: Cookie.get('donutAccount'),
     dnutBalance: 0,
     api:null,
@@ -59,6 +61,9 @@ export default new Vuex.Store({
       if (_api) {
         state.api = _api
       }
+    },
+    savePolkadotAccounts(state, polkadotAccounts){
+      state.polkadotAccounts = polkadotAccounts
     },
     saveDonutAccount(state, donutAccount) {
       console.log('save acc',donutAccount);
@@ -131,14 +136,18 @@ export default new Vuex.Store({
       }
     },
 
-    async saveDonutAccount({commit}, donutAccount) {
+    async getDnutBanlance({state, commit}) {
+      if (state.donutAccount && state.api){
+        const { nonce, data: balance } = await state.api.query.system.account(state.donutAccount.address)
+        commit('saveDnutBalance', balance.free / DONUT_PRECISION)
+      }
+    },
+
+    async saveDonutAccount({state, commit, dispatch}, donutAccount) {
       commit('saveDonutAccount',donutAccount)
-      // const query = getApi().query
-      // console.log('api',getApi().query);
-      // console.log('query', query.system);
-      // const { nonce, data: balance } = await query.system.account(donutAccount.address);
-      // console.log('banlance:', balance);
-      // commit('saveDnutBalance', balance.free)
+      const injected = await web3FromSource(donutAccount.meta.source)
+      state.api.setSigner(injected.signer)
+      dispatch('getDnutBanlance')
     }
   },
   modules: {}
