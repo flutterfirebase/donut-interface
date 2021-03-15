@@ -9,11 +9,11 @@
           v-for="acc in polkadotAccounts"
           :key="acc.address"
         >
-          <p>
-            {{ acc.address }}
+          <p class="name">
+            {{ acc.meta.name }}
           </p>
-          <p style="color: var(--secondary-text); font-size: 14px;margin-top:4px;text-align:right;">
-            {{ acc.balance | amountForm }} DNUT
+          <p class="address">
+            {{ acc.address }}
           </p>
         </div>
       </div>
@@ -63,15 +63,22 @@ export default {
 }
 .acc {
   margin: 8px 10px;
-  padding: 18px 24px;
+  padding: 10px 18px;
+  min-width: 600px;
   box-sizing: border-box;
-
-  background: white;
-  box-shadow: 0px 2px 20px 0px rgba(0, 0, 0, 0.02);
-  border-radius: 28px;
-  border: 1px solid rgba(227, 229, 232, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
   p{
     margin: 0; 
+  }
+  .name{
+    font-size: 14px;
+    color: var(--primary-text);
+  }
+  .address{
+    font-size: 14px;
+    color: var(--secondary-text);
   }
 }
 .acc:hover {
