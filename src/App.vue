@@ -13,6 +13,7 @@
 <script>
 import TipMessage from "./components/ToolsComponents/TipMessage";
 import Donut from "./components/Donut"
+import { mapState } from 'vuex'
 
 export default {
   data() {
@@ -21,6 +22,9 @@ export default {
       tipTitle: "",
       showMessage: false,
     };
+  },
+  computed: {
+    ...mapState([''])
   },
   components: {
     TipMessage,

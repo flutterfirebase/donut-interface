@@ -11,6 +11,20 @@
           />
           <span>{{ this.fromSteemToDnut ? "DNUT" : "STEEM" }}</span>
         </p>
+        <b-dd :text='currentDonutAccount' right v-if="currentDonutAccount" variant="outline-primary">
+          <b-dropdown-item @click="selectAcc(acc)" v-for="acc in polkadotAccounts" :key='acc.address' class='account'>
+            <div class="account">
+            <p class="name">
+              {{ acc.meta.name }}
+            </p>
+            <p style="min-width:64px;flex:1"></p>
+            <p class="address">
+              {{ acc.address }}
+            </p>
+
+            </div>
+          </b-dropdown-item>
+        </b-dd>
       </div>
     </div>
     <div class="line"></div>
@@ -129,7 +143,7 @@
     </div>
 
     <Login v-if="showSteemLogin" @hideMask="showSteemLogin = false" />
-    <AccountSelector v-if="!donutAccount && polkadotAccounts && polkadotAccounts.length > 0" />
+    <!-- <AccountSelector v-if="!donutAccount && polkadotAccounts && polkadotAccounts.length > 0" /> -->
     <TipMessage
       :showMessage="tipMessage"
       :title="tipTitle"
@@ -210,11 +224,18 @@ export default {
         return f > DNUT_TRANSFER_FEE ? f : DNUT_TRANSFER_FEE
       }
       return 0
+    },
+    currentDonutAccount (){
+      if (this.donutAccount && this.donutAccount.meta){
+        return this.donutAccount.meta.name
+      }else if (this.polkadotAccounts && this.polkadotAccounts.length > 0){
+        return this.polkadotAccounts[0].meta.name
+      }
     }
   },
 
   methods: {
-    ...mapActions(['getSteem']),
+    ...mapActions(['getSteem', 'saveDonutAccount']),
     ...mapMutations(['saveSteemBalance', 'saveDnutBalance']),
 
     checkTransValue () {
@@ -349,6 +370,9 @@ export default {
         this.transValue = ''
         this.checkTransValue()
       }
+    },
+    selectAcc(acc){
+this.saveDonutAccount(acc);
     }
   },
   async mounted () {
@@ -364,4 +388,19 @@ export default {
 
 <style lang="less" scoped>
 @import "../static/css/swap.less";
+
+.account{
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: space-between;
+  .name{
+    color: var(--primary-text);
+    font-size: 16px;
+  }
+  .address{
+    color: var(--secondary-text);
+    font-size: 14px;
+  }
+}
 </style>
