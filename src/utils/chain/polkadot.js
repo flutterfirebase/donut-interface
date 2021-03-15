@@ -93,6 +93,6 @@ export const loadAccounts = async (store) => {
 };
 
 export const getAccountBalance = async (acc, api) => {
-  const { nonce, data: balance } = await api.query.system.account(acc.address)
+  const { data: balance } = await api.query.system.account(acc.address)
   return balance.free / DONUT_PRECISION
 }
