@@ -216,5 +216,5 @@ export const postHasVotedByNutbox = async function (author, permlink) {
   }catch(e){
     return false;
   }
-  
+
 };

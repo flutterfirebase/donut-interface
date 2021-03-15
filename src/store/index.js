@@ -9,6 +9,8 @@ import {
   getVestingShares
 } from '../utils/chain/steem'
 
+import { getApi } from '../utils/chain/polkadot'
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -19,6 +21,12 @@ export default new Vuex.Store({
     vestsBalance: 0,
     sbdBalance: 0,
     vestsToSteem: 0,
+
+    // polkadot
+    apiState: null,
+    donutAccount: Cookie.get('donutAccount'),
+    dnutBalance: 0,
+    api:null,
   },
   mutations: {
     // steem
@@ -42,6 +50,24 @@ export default new Vuex.Store({
       state.steemAccount = null
       Cookie.remove('steemAccount')
     },
+
+    // polkadot
+    saveApiState(state, param){
+      console.log('apiState:',param.apiState)
+      const { apiState, _api } = param
+      state.apiState = apiState
+      if (_api) {
+        state.api = _api
+      }
+    },
+    saveDonutAccount(state, donutAccount) {
+      console.log('save acc',donutAccount);
+      state.donutAccount = donutAccount
+      Cookie.set('donutAccount', donutAccount, '30d')
+    },
+    saveDnutBalance(state, dnutBalance){
+      state.dnutBalance = dnutBalance
+    }
   },
   getters: {
     // steem
@@ -104,6 +130,16 @@ export default new Vuex.Store({
         return false
       }
     },
+
+    async saveDonutAccount({commit}, donutAccount) {
+      commit('saveDonutAccount',donutAccount)
+      // const query = getApi().query
+      // console.log('api',getApi().query);
+      // console.log('query', query.system);
+      // const { nonce, data: balance } = await query.system.account(donutAccount.address);
+      // console.log('banlance:', balance);
+      // commit('saveDnutBalance', balance.free)
+    }
   },
   modules: {}
 })
